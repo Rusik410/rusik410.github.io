@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DLC Albion Radar</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css">
+  <style>
+    :root {
+      --panel: rgba(24, 29, 40, 0.88);
+      --panel-strong: rgba(31, 37, 52, 0.96);
+      --line: rgba(112, 102, 245, 0.18);
+      --text: #f3f5fb;
+      --muted: #a8b2c7;
+      --accent: #705ff4;
+      --accent-soft: #8f82ff;
+      --safe: #67ddb2;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(112, 95, 244, 0.18), transparent 24%),
+        radial-gradient(circle at 20% 18%, rgba(51, 73, 116, 0.18), transparent 24%),
+        linear-gradient(160deg, #11161f 0%, #151b26 45%, #171d29 100%);
+      min-height: 100vh;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    .hero,
+    .panel {
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+      background: linear-gradient(145deg, rgba(22, 28, 40, 0.97), rgba(26, 33, 47, 0.9));
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(112, 95, 244, 0.08), transparent 35%),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 32px,
+          rgba(168, 178, 199, 0.03) 33px,
+          rgba(168, 178, 199, 0.03) 34px
+        );
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(12, 16, 24, 0.58);
+      backdrop-filter: blur(10px);
+      gap: 4px;
+    }
+
+    .lang-btn {
+      border: 0;
+      min-width: 62px;
+      height: 38px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .lang-btn.is-active {
+      background: linear-gradient(135deg, rgba(112, 95, 244, 0.92), rgba(143, 130, 255, 0.92));
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(112, 95, 244, 0.28);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 84px);
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      color: #f5f7ff;
+      text-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero-subtitle {
+      max-width: 760px;
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(18px, 2.3vw, 28px);
+      line-height: 1.45;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-visual {
+      position: relative;
+      margin-top: 30px;
+    }
+
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      inset: auto 8% -18px 8%;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.42);
+      filter: blur(18px);
+      z-index: 0;
+    }
+
+    .gallery-link {
+      display: block;
+      cursor: zoom-in;
+      text-decoration: none;
+    }
+
+    .hero-visual .gallery-link {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-visual img {
+      width: 100%;
+      border-radius: 24px;
+      border: 1px solid rgba(112, 95, 244, 0.28);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
+    }
+
+    section {
+      margin-top: 28px;
+    }
+
+    .panel {
+      padding: 30px;
+      background:
+        linear-gradient(180deg, rgba(143, 130, 255, 0.025), transparent 24%),
+        var(--panel);
+      backdrop-filter: blur(14px);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .section-head p {
+      margin: 0;
+      max-width: 540px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .security-panel {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(112, 95, 244, 0.12), transparent 22%),
+        linear-gradient(145deg, rgba(24, 29, 40, 0.98), rgba(28, 35, 49, 0.94));
+      border-color: rgba(112, 95, 244, 0.16);
+    }
+
+    .security-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(112, 95, 244, 0.06), transparent 35%),
+        linear-gradient(180deg, transparent, rgba(103, 221, 178, 0.04));
+      pointer-events: none;
+    }
+
+    .security-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+    }
+
+    .security-main {
+      padding: 26px;
+      border-radius: 22px;
+      background: linear-gradient(155deg, rgba(28, 35, 49, 0.98), rgba(22, 28, 40, 0.95));
+      border: 1px solid rgba(103, 221, 178, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .security-main h3 {
+      font-size: 28px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: var(--safe);
+    }
+
+    .security-main p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .security-points {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .security-point {
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(112, 95, 244, 0.14);
+      background: linear-gradient(155deg, rgba(39, 47, 67, 0.72), rgba(30, 37, 52, 0.66));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .security-point strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 18px;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .security-point span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .security-highlight {
+      margin-top: 18px;
+      padding: 24px 28px;
+      border-radius: 22px;
+      border: 1px solid rgba(112, 95, 244, 0.28);
+      background: linear-gradient(135deg, rgba(112, 95, 244, 0.18), rgba(103, 221, 178, 0.08));
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .security-highlight strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #9b8fff;
+      font-size: 26px;
+      line-height: 1.1;
+    }
+
+    .security-highlight p {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 17px;
+      max-width: 1000px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(112, 95, 244, 0.32);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.24);
+    }
+
+    .feature-card img {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feature-copy {
+      padding: 20px;
+    }
+
+    .accent-line {
+      display: inline-flex;
+      width: 42px;
+      height: 2px;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, #8f82ff, transparent);
+      opacity: 0.9;
+    }
+
+    .feature-copy h3 {
+      font-size: 24px;
+      line-height: 1.1;
+      margin: 0;
+      padding-top: 2px;
+    }
+
+    @media (max-width: 920px) {
+      .security-grid,
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .hero,
+      .panel {
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page-shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 16px;
+        padding-bottom: 36px;
+      }
+
+      .hero,
+      .panel {
+        border-radius: 22px;
+      }
+
+      .hero-subtitle {
+        font-size: 18px;
+      }
+
+      .lang-btn {
+        min-width: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-topbar">
+          <div class="lang-switch" aria-label="Language switcher">
+            <button class="lang-btn is-active" type="button" data-lang="ru">RU</button>
+            <button class="lang-btn" type="button" data-lang="en">ENG</button>
+          </div>
+        </div>
+
+        <h1>DLC Albion Radar</h1>
+        <p class="hero-subtitle" data-i18n="heroSubtitle">DLC Albion Radar — это удобный инструмент, который дополняет функционал игры и помогает получать полезную информацию об игроках, ресурсах и ключевых точках без лишнего визуального шума.</p>
+
+        <div class="hero-visual" id="hero-gallery">
+          <a class="gallery-link" href="albionphotos/playerdetect.png" data-pswp-width="3826" data-pswp-height="1893" target="_blank" rel="noreferrer">
+            <img src="albionphotos/playerdetect.png" data-i18n-alt="heroImageAlt" alt="DLC Albion Radar player detection preview">
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="panel security-panel">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="securityTitle">Безопасность</h2>
+        </div>
+        <p data-i18n="securityQuestion">Почему это безопасно?</p>
+      </div>
+
+      <div class="security-grid">
+        <div class="security-main">
+          <h3 data-i18n="securityQuestion">Почему это безопасно?</h3>
+          <p data-i18n="securityMainText">Albion разрешает анализировать трафик - есть определенные ограничения, но сама игра не имеет инструментов, чтобы понять, какие именно данные мы извлекаем. Поэтому с этой частью все абсолютно легально.</p>
+        </div>
+
+        <div class="security-points">
+          <div class="security-point">
+            <strong data-i18n="securityCard1Title">Миникарта и интерфейс</strong>
+            <span data-i18n="securityCard1Text">Миникарта выглядит как чит, но на деле это просто браузерное окно поверх игры. За использование браузеров никого не банили, так что здесь все в порядке.</span>
+          </div>
+          <div class="security-point">
+            <strong data-i18n="securityCard2Title">Что изменилось</strong>
+            <span data-i18n="securityCard2Text">Недавно Albion обновил систему передачи пакетов, и теперь "легально" получать данные о других игроках нельзя.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="security-highlight">
+        <strong data-i18n="securitySafeTitle">Безопасная версия</strong>
+        <p data-i18n="securitySafeText">Можно вытащить данные из памяти игры, но тогда о безопасности аккаунта говорить уже нет смысла. У нас безопасная версия, где видно всю информацию о игроках, но расположение на карте получить не можем.</p>
+      </div>
+    </section>
+
+    <section id="features" class="panel">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="featuresTitle">Что Показывает Radar</h2>
+        </div>
+      </div>
+
+      <div class="features-grid" id="features-gallery">
+        <article class="feature-card">
+          <a class="gallery-link" href="albionphotos/radar.png" data-pswp-width="1738" data-pswp-height="1303" target="_blank" rel="noreferrer">
+            <img src="albionphotos/radar.png" data-i18n-alt="featureRadarAlt" alt="Общий радар">
+          </a>
+          <div class="feature-copy">
+            <span class="accent-line"></span>
+            <h3 data-i18n="featureRadarTitle">Общий радар</h3>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <a class="gallery-link" href="albionphotos/players.png" data-pswp-width="1080" data-pswp-height="1011" target="_blank" rel="noreferrer">
+            <img src="albionphotos/players.png" data-i18n-alt="featurePlayersAlt" alt="Отслеживание игроков">
+          </a>
+          <div class="feature-copy">
+            <span class="accent-line"></span>
+            <h3 data-i18n="featurePlayersTitle">Отслеживание игроков</h3>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <a class="gallery-link" href="albionphotos/resources.png" data-pswp-width="1074" data-pswp-height="1835" target="_blank" rel="noreferrer">
+            <img src="albionphotos/resources.png" data-i18n-alt="featureResourcesAlt" alt="Ресурсы">
+          </a>
+          <div class="feature-copy">
+            <span class="accent-line"></span>
+            <h3 data-i18n="featureResourcesTitle">Ресурсы</h3>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <a class="gallery-link" href="albionphotos/chestsanddungeons.png" data-pswp-width="1080" data-pswp-height="1119" target="_blank" rel="noreferrer">
+            <img src="albionphotos/chestsanddungeons.png" data-i18n-alt="featureChestsAlt" alt="Сундуки и данжи">
+          </a>
+          <div class="feature-copy">
+            <span class="accent-line"></span>
+            <h3 data-i18n="featureChestsTitle">Сундуки и данжи</h3>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <a class="gallery-link" href="albionphotos/enemis.png" data-pswp-width="1080" data-pswp-height="1203" target="_blank" rel="noreferrer">
+            <img src="albionphotos/enemis.png" data-i18n-alt="featureEnemiesAlt" alt="Обнаружение противников">
+          </a>
+          <div class="feature-copy">
+            <span class="accent-line"></span>
+            <h3 data-i18n="featureEnemiesTitle">Обнаружение противников</h3>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <a class="gallery-link" href="albionphotos/1.png" data-pswp-width="2560" data-pswp-height="1440" target="_blank" rel="noreferrer">
+            <img src="albionphotos/1.png" data-i18n-alt="featureOverviewAlt" alt="Пример в игре">
+          </a>
+          <div class="feature-copy">
+            <span class="accent-line"></span>
+            <h3 data-i18n="featureOverviewTitle">Пример в игре</h3>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe-lightbox.esm.min.js';
+
+    const sharedOptions = {
+      children: 'a',
+      initialZoomLevel: 'fit',
+      secondaryZoomLevel: 1.8,
+      maxZoomLevel: 4,
+      paddingFn: (viewportSize) => {
+        const side = viewportSize.x < 700 ? 16 : 32;
+        const vertical = viewportSize.y < 700 ? 16 : 28;
+        return {
+          top: vertical,
+          bottom: vertical,
+          left: side,
+          right: side
+        };
+      },
+      wheelToZoom: true,
+      imageClickAction: 'zoom',
+      tapAction: 'toggle-controls',
+      bgClickAction: 'close',
+      escKey: true,
+      pswpModule: () => import('https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.esm.min.js')
+    };
+
+    const heroLightbox = new PhotoSwipeLightbox({
+      gallery: '#hero-gallery',
+      ...sharedOptions
+    });
+
+    const featuresLightbox = new PhotoSwipeLightbox({
+      gallery: '#features-gallery',
+      ...sharedOptions
+    });
+
+    heroLightbox.init();
+    featuresLightbox.init();
+
+    const translations = {
+      ru: {
+        heroSubtitle: 'DLC Albion Radar — это удобный инструмент, который дополняет функционал игры и помогает получать полезную информацию об игроках, ресурсах и ключевых точках без лишнего визуального шума.',
+        securityTitle: 'Безопасность',
+        securityQuestion: 'Почему это безопасно?',
+        securityMainText: 'Albion разрешает анализировать трафик - есть определенные ограничения, но сама игра не имеет инструментов, чтобы понять, какие именно данные мы извлекаем. Поэтому с этой частью все абсолютно легально.',
+        securityCard1Title: 'Миникарта и интерфейс',
+        securityCard1Text: 'Миникарта выглядит как чит, но на деле это просто браузерное окно поверх игры. За использование браузеров никого не банили, так что здесь все в порядке.',
+        securityCard2Title: 'Что изменилось',
+        securityCard2Text: 'Недавно Albion обновил систему передачи пакетов, и теперь "легально" получать данные о других игроках нельзя.',
+        securitySafeTitle: 'Безопасная версия',
+        securitySafeText: 'Можно вытащить данные из памяти игры, но тогда о безопасности аккаунта говорить уже нет смысла. У нас безопасная версия, где видно всю информацию о игроках, но расположение на карте получить не можем.',
+        featuresTitle: 'Что Показывает Radar',
+        featureRadarTitle: 'Общий радар',
+        featurePlayersTitle: 'Отслеживание игроков',
+        featureResourcesTitle: 'Ресурсы',
+        featureChestsTitle: 'Сундуки и данжи',
+        featureEnemiesTitle: 'Обнаружение противников',
+        featureOverviewTitle: 'Пример в игре',
+        heroImageAlt: 'DLC Albion Radar player detection preview',
+        featureRadarAlt: 'Общий радар',
+        featurePlayersAlt: 'Отслеживание игроков',
+        featureResourcesAlt: 'Ресурсы',
+        featureChestsAlt: 'Сундуки и данжи',
+        featureEnemiesAlt: 'Обнаружение противников',
+        featureOverviewAlt: 'Пример в игре'
+      },
+      en: {
+        heroSubtitle: 'DLC Albion Radar is a convenient tool that expands the game functionality and helps you get useful information about players, resources, and key points without unnecessary visual noise.',
+        securityTitle: 'Security',
+        securityQuestion: 'Why is it safe?',
+        securityMainText: 'Albion allows traffic analysis - there are certain restrictions, but the game itself has no tools to understand exactly which data we extract. So this part is completely legitimate.',
+        securityCard1Title: 'Minimap and interface',
+        securityCard1Text: 'The minimap may look like a cheat, but in reality it is just a browser window placed over the game. Nobody has been banned for using browsers, so this part is fine.',
+        securityCard2Title: 'What changed',
+        securityCard2Text: 'Albion recently updated its packet transfer system, and now it is no longer possible to obtain data about other players "legally".',
+        securitySafeTitle: 'Safe version',
+        securitySafeText: 'It is possible to pull data from the game memory, but then there is no point in talking about account safety. Our version is safe: you can see full player information, but we cannot get their exact position on the map.',
+        featuresTitle: 'What Radar Shows',
+        featureRadarTitle: 'Main radar',
+        featurePlayersTitle: 'Player tracking',
+        featureResourcesTitle: 'Resources',
+        featureChestsTitle: 'Chests and dungeons',
+        featureEnemiesTitle: 'Enemy detection',
+        featureOverviewTitle: 'In-game example',
+        heroImageAlt: 'DLC Albion Radar player detection preview',
+        featureRadarAlt: 'Main radar',
+        featurePlayersAlt: 'Player tracking',
+        featureResourcesAlt: 'Resources',
+        featureChestsAlt: 'Chests and dungeons',
+        featureEnemiesAlt: 'Enemy detection',
+        featureOverviewAlt: 'In-game example'
+      }
+    };
+
+    function setLanguage(lang) {
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach((node) => {
+        const key = node.dataset.i18n;
+        if (translations[lang][key]) {
+          node.textContent = translations[lang][key];
+        }
+      });
+
+      document.querySelectorAll('[data-i18n-alt]').forEach((node) => {
+        const key = node.dataset.i18nAlt;
+        if (translations[lang][key]) {
+          node.alt = translations[lang][key];
+        }
+      });
+
+      document.querySelectorAll('.lang-btn').forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.lang === lang);
+      });
+    }
+
+    document.querySelectorAll('.lang-btn').forEach((button) => {
+      button.addEventListener('click', () => setLanguage(button.dataset.lang));
+    });
+  </script>
+</body>
+</html>
